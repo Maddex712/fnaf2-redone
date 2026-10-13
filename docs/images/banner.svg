@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="FNaF 2 Redone">
+<defs><pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 0H4" stroke="#fff" stroke-opacity=".035"/></pattern><linearGradient id="bg"><stop stop-color="#101714"/><stop offset="1" stop-color="#070908"/></linearGradient></defs>
+<rect width="1280" height="320" rx="16" fill="url(#bg)"/>
+<rect x="20" y="20" width="1240" height="280" rx="7" fill="none" stroke="#39483d"/>
+<path d="M48 45H105M48 45V80M1232 240V275H1175" fill="none" stroke="#a6c5a1" stroke-width="2"/>
+<circle cx="70" cy="77" r="4" fill="#a6c5a1"/>
+<text x="86" y="83" font-family="monospace" font-size="17" fill="#a6c5a1" letter-spacing="3">FAZBEAR ENTERTAINMENT / NIGHT OPERATIONS</text>
+<text x="62" y="169" font-family="monospace" font-weight="bold" font-size="60" fill="#eeeade" letter-spacing="3">FNaF 2 REDONE</text>
+<text x="66" y="268" font-family="monospace" font-size="14" fill="#838b81" letter-spacing="2">ANDROID / AYN THOR / BRING YOUR OWN STEAM COPY</text>
+<g fill="#131914" stroke="#83917f" stroke-width="3"><rect x="934" y="64" width="230" height="128" rx="10"/><rect x="959" y="201" width="180" height="79" rx="9"/></g>
+<g fill="none" stroke="#9db59a" stroke-width="2"><path d="M960 165V90H1139V165ZM986 258V224H1113V258"/><path d="M1048 91V165M970 133H1128M994 234H1025V250H994Z" opacity=".4"/></g>
+<text x="973" y="120" font-family="monospace" font-size="14" fill="#dddaca">12:00 AM</text>
+<text x="1036" y="246" font-family="monospace" font-size="11" fill="#a6c5a1">CAM 1A</text>
+<rect width="1280" height="320" rx="16" fill="url(#scan)"/>
+</svg>

@@ -1,0 +1,9 @@
+build/
+*.jks
+*.keystore
+*.apk
+*.zip
+.env
+tools/FusionAssetLite/bin/
+tools/FusionAssetLite/obj/
+private-output/

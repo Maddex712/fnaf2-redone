@@ -1,0 +1,17 @@
+package dev.thor.fnaf2;
+import java.util.*;
+public final class DeathMinigameTest {
+ static int checks;
+ static void check(boolean ok,String label){checks++;if(!ok)throw new AssertionError(label);}
+ static void tick(DeathMinigame m,int n){for(int i=0;i<n;i++)m.tick(1.0/60);}
+ static DeathMinigame game(int turn){DeathMinigame m=new DeathMinigame(new Random(5));m.start(turn-1);m.ready=true;tick(m,120);return m;}
+ public static void main(String[] args){
+  int old=0;for(int expected:new int[]{1,2,3,4,5,1}){old=DeathMinigame.nextTurn(old);check(old==expected,"Persisted minigame rotation");}
+  DeathMinigame m=new DeathMinigame();m.start(0);tick(m,200);check(m.loadTicks==0,"Loading cannot start a blank game before assets arrive");m.ready=true;tick(m,59);check(m.turn==0,"Turn stays unchanged before one second");tick(m,1);check(m.turn==1&&m.turnChanged,"Turn advances at one second");tick(m,59);check(!m.gameStarted,"Two-second load interval retained");tick(m,1);check(m.gameStarted&&m.kind==1,"First game is SAVE THEM");
+  m=game(2);m.right=true;tick(m,9);check(m.x==533,"Cake move waits ten ticks");tick(m,1);check(m.x==548&&m.y==460,"Cake right movement includes source Y offset");m.paused=true;int x=m.x;tick(m,100);check(m.x==x&&m.ticks==10,"Pause freezes the complete minigame");m.paused=false;m.clearInputs();tick(m,1189);check(m.carSteps==0,"Car waits twenty seconds");tick(m,1);check(m.carSteps==0,"Car timer initializes at twenty seconds");tick(m,30);check(m.carSteps==1&&m.carX==1170,"Car moves after its first eligible half-second interval");tick(m,420);check(m.carSteps==15&&m.man,"Car arrival reveals the man");for(int i=0;i<1800&&m.attacker<0;i++)tick(m,1);check(m.attacker==8,"Cake ending triggers Puppet jumpscare");
+  m=game(3);for(int[] head:DeathMinigame.HEADS){m.x=head[1];m.y=head[2];tick(m,1);}check(m.count(m.gifts)==4&&m.score==4&&m.phase==0,"Four gifts do not skip the center interaction");m.x=526;m.y=388;tick(m,1);check(m.phase==1,"Return to center begins Give Life");for(int i=0;i<4;i++){m.x=DeathMinigame.HEADS[i][1];m.y=DeathMinigame.HEADS[i][2];tick(m,1);check(m.slow==(i+1)*5,"Each head increases movement interval");}check(m.pendingAttacker==9&&m.attacker<0&&m.score==8,"Fourth head queues Golden Freddy for the next event pass");
+  m=game(5);m.right=true;tick(m,299);check(m.phase==0&&m.x==530,"Foxy waits five seconds before release");tick(m,1);check(m.phase==0,"Foxy timer excludes its initializing pass");tick(m,1);check(m.phase==1,"Foxy release follows five elapsed seconds");tick(m,10);check(m.x==555,"Foxy movement is twenty-five pixels");m.clearInputs();m.x=1304;m.y=393;tick(m,1);check(m.phase==2,"Party trigger starts fireworks");tick(m,420);check(m.cycles==1&&m.phase==0&&m.x==530,"Party returns Foxy to the starting room");tick(m,300);m.x=1304;m.y=393;tick(m,420);check(m.cycles==2,"Second visit changes the scene");m.x=1462;m.y=391;tick(m,1);check(m.pendingAttacker==3,"Third visit queues Foxy");tick(m,1);check(m.attacker==3,"Following event pass begins Foxy animation");
+  m=game(4);check(m.kind==1,"Fourth rotation returns to SAVE THEM");m.h=4;m.v=1;m.x=499;m.y=150;m.up=true;tick(m,60);check(m.v==1&&m.y>=80,"Closed room edge blocks movement");m.clearInputs();m.end(false);tick(m,119);check(!m.finished,"Ending static retains two-second duration");tick(m,1);check(m.finished,"Ending returns after final static tick");
+  System.out.println("PASS: "+checks+" death-minigame timing, input, collision-boundary, progression and ending checks");
+ }
+}
