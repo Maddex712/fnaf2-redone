@@ -23,6 +23,6 @@ $stamp=Get-Date -Format 'yyyyMMdd-HHmmss'
 $pack=Join-Path $private "FNaF2-Steam-data-$stamp.zip"
 [IO.Compression.ZipFile]::CreateFromDirectory($data,$pack,[IO.Compression.CompressionLevel]::Optimal,$false)
 Write-Output "Your personal game data pack: $pack"
-Write-Output 'Copy the ZIP to the Thor, open FNaF 2 Redone, and choose Settings > Import Steam data.'
+Write-Output 'Copy the ZIP to the Thor, open FNaF 2 Redone, and choose Settings > Scan Steam file.'
 Write-Output 'The APK and source contain no original game assets. Keep this data pack for your own device.'
 if ($OpenFolder) { Start-Process explorer.exe -ArgumentList @('/select,',('"'+$pack+'"')) }

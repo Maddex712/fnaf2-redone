@@ -1,5 +1,15 @@
 # Release notes
 
+## 0.3.12 — Steam EXE setup and first Windows build
+
+- Android now selects and scans the Steam EXE directly, with ZIP support retained. Fixed the ZIP-only file-picker restriction reported by a tester.
+- Added offline extraction, progress messages, explanatory setup, completion/error dialogs, strict executable validation, and staging cleanup. Failed imports preserve installed data.
+- Added automatic mouse/keyboard/controller profiles and PC-style pointer, hover and Ctrl controls. Existing controller mappings remain.
+- Corrected the mouse-profile monitor/mask bar graphics.
+- Added Windows 0.1.0: standalone portable application with bundled Java, single-screen gameplay, Steam-library discovery, EXE/ZIP setup, keyboard/mouse and XInput support, fullscreen and focus-loss handling.
+- Android import tests passed on Thor; full importer verification matched 804 image pixel comparisons and 66 WAV byte comparisons. Windows input/render tests and a live-window gameplay smoke test passed.
+
+
 ## 0.3.10 — first public FNaF 2 Redone package
 
 Includes the FNaF 2 Android runtime:

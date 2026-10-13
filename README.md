@@ -6,7 +6,7 @@
 
 Office above. Cameras below. Bring your own purchased Steam copy.
 
-[![Release](https://img.shields.io/badge/release-0.3.10-d8bc7e?style=flat-square)](https://github.com/Maddex712/fnaf2-redone/releases/latest)
+[![Release](https://img.shields.io/badge/release-0.3.12-d8bc7e?style=flat-square)](https://github.com/Maddex712/fnaf2-redone/releases/latest)
 [![Android](https://img.shields.io/badge/Android-8.0%2B-9bbe91?style=flat-square)](docs/INSTALL.md)
 [![AYN Thor](https://img.shields.io/badge/designed_for-AYN_Thor-a5a9b2?style=flat-square)](docs/COMPATIBILITY.md)
 
@@ -38,15 +38,16 @@ Exact whole-game AI, timing, and RNG parity have not been established.
 | Music-box winding and controller quick access | Achievements, points and office plushies |
 | Original imported animation and jumpscare frames | 1987 companion terminal and security desk |
 | Dream scenes, endings and title stars | Perspective settings and camera panning |
-| Controller and touch support | Optional Halloween decorations |
+| Automatic controller / mouse / keyboard profiles | Optional Halloween decorations |
 
 ## Get playing
 
 1. [Download and install the APK](https://github.com/Maddex712/fnaf2-redone/releases/latest) on your Android device.
-2. On a Windows PC, download and extract **FNaF2-Steam-Import-Helper.zip** from the same release.
-3. Follow [the installation guide](docs/INSTALL.md) to create your personal data ZIP from the Steam game.
-4. Copy that ZIP to Downloads on your device. Open **Settings → Import Steam data**, and choose it.
-5. Wait for import to finish, then choose **New Game**.
+2. In Steam, browse FNaF 2's local files and copy `FiveNightsatFreddys2.exe` to Downloads on your Android device.
+3. Open **Settings → Scan Steam file → Select Steam file**, then choose the EXE. An existing personal data ZIP also works.
+4. Wait for **Ready to play**, then choose **New Game**. Setup runs offline on the device; no PC extraction helper is required.
+
+**Windows:** download the portable Windows ZIP from the same release. It includes its Java runtime and scans your Steam libraries. See [Windows setup and controls](docs/WINDOWS.md).
 
 For future updates, install the newer APK without uninstalling the game.
 Progress and imported game data stay in place. **Uninstalling or clearing app

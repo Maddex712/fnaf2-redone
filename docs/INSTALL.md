@@ -4,36 +4,24 @@
 
 - Android 8.0 or newer; AYN Thor is the target handheld.
 - Your purchased Windows Steam copy of Five Nights at Freddy’s 2.
-- A Windows PC to prepare the game-data ZIP once.
-- A way to transfer that ZIP to Android, such as USB.
+- Access to your purchased Steam installation to copy its EXE.
+- A way to transfer the EXE or an existing data ZIP to Android.
 
 The APK contains the Android application. Your Steam copy supplies the original
 images and sounds through a local import. No Steam account sign-in is required.
 
 ## First installation
 
-1. Download **FNaF2-Redone-0.3.10.apk** from Releases on your Android device.
-2. Open it and allow your browser/file manager to install APKs when Android asks.
-3. On Windows, install the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
-   The SDK is required to build and run the included personal-import helper.
-4. Download and extract **FNaF2-Steam-Import-Helper.zip**. Keep its folders together.
-5. In Steam, open FNaF 2 → Manage → Browse local files. Locate `FiveNightsatFreddys2.exe`.
-6. Open PowerShell in the extracted helper folder and run:
+1. Download **FNaF2-Redone-0.3.12.apk** from Releases and install it on Android.
+2. In Steam on your PC, open FNaF 2 → Manage → Browse local files. Locate `FiveNightsatFreddys2.exe`.
+3. Copy that EXE to Downloads on your Android device using your own file transfer.
+4. Open FNaF 2 Redone → **Settings → Scan Steam file** (or select setup on the initial screen).
+5. Choose **Select Steam file**, browse to Downloads, and select the EXE. Android's picker now accepts EXEs rather than filtering for ZIPs only.
+6. Wait while the app prepares 804 images and 66 sounds locally. After **Ready to play**, select **New Game**.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\Prepare-Game.ps1 -GameExe "C:/path/to/FiveNightsatFreddys2.exe"
-```
+No PC extraction helper or .NET SDK is needed for this route. Keep sufficient free space for the copied EXE, temporary extraction and installed game data. Your EXE is read as data; it is never launched on Android. No Steam sign-in is required.
 
-The helper checks the supported Steam executable, reads it locally, and creates
-a personal ZIP in the helper’s `private-output` folder. It does not upload it.
-Leave sufficient free space for extracted files and the ZIP; extraction can take time.
-
-7. Copy the generated ZIP to your Android device’s Downloads folder using USB,
-   your own private file transfer, or your own private cloud storage.
-8. Open FNaF 2 Redone → Settings → **Import Steam data**, and select the ZIP.
-9. Wait for successful import, then select **New Game**.
-
-The Android importer takes the ZIP created by the helper, not the Steam executable.
+Existing personal FNaF 2 data ZIPs still work in the same picker. The optional import helper remains available for people who prefer preparing a ZIP on a PC.
 
 ## Troubleshooting
 

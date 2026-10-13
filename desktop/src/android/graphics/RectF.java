@@ -1,0 +1,2 @@
+package android.graphics;
+public class RectF {public RectF(){this(0,0,0,0);}public void set(float l,float t,float r,float b){left=l;top=t;right=r;bottom=b;}public float left,top,right,bottom;public RectF(float l,float t,float r,float b){left=l;top=t;right=r;bottom=b;}public float width(){return right-left;}public float height(){return bottom-top;}public float centerX(){return (left+right)/2;}public float centerY(){return (top+bottom)/2;}public boolean contains(float x,float y){return x>=left&&x<right&&y>=top&&y<bottom;}}

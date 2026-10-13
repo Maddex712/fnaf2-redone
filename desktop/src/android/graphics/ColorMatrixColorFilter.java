@@ -1,0 +1,1 @@
+package android.graphics;public class ColorMatrixColorFilter extends ColorFilter{final float saturation;final float[] matrix;public ColorMatrixColorFilter(ColorMatrix m){saturation=m.saturation;matrix=m.values.clone();}}

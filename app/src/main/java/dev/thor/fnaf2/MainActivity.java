@@ -119,8 +119,28 @@ public final class MainActivity extends Activity implements DisplayManager.Displ
     void startDream(int nextNight){dream.start(nextNight);resetControls();for(int id:new int[]{616,615,613,592,617,609,614,624,626,619,628})assets.image(id);audio.play("dream","Scary_Space_B",true,1);audio.play("dream-ambient","ambience2",true,1);}
     void save(){prefs.edit().putBoolean("beat20",beat20).putInt("unlocked",unlocked).putInt("earned",earned).putInt("challengeEarned",challengeEarned).putInt("points",points).putInt("owned",owned).putInt("equipped",equipped).apply();}
     void begin(){if(!assets.ready||assets.importing)return;scareGeneration++;resetControls();if(state.night==7&&state.customLevels==null&&(state.challenge<0||state.challenge>=Fnaf2State.PRESETS.length))state.night=Math.min(unlocked,6);audio.stopAll();intro=state.night==1?1:2;introTime=0;page=0;scareLoading=scareReady=winStarted=cheered=deathStarted=phoneStarted=false;anticipatedScare=3;assets.prepareScare(3,()->{});audio.play("switch","blip3",false,.7f);}
-    void importData(){if(assets.importing)return;Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("application/zip");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,1);}
-    @Override protected void onActivityResult(int req,int result,Intent data){super.onActivityResult(req,result,data);if(req==1&&result==RESULT_OK&&data!=null)assets.importPack(data.getData(),()->handler.post(()->{assets.warm();seedDeveloperEncounters();top.invalidate();}));}
+    void importData(){
+        if(assets.importing)return;
+        state.pauseForInterruption();resetControls();audio.pause(true);
+        new AlertDialog.Builder(this).setTitle("Scan FNaF 2 Steam file")
+            .setMessage("Copy FiveNightsatFreddys2.exe from your Steam installation to this device, then select it. The game data is prepared here, offline. An existing FNaF 2 data ZIP also works.")
+            .setPositiveButton("Select Steam file",(dialog,which)->chooseSteamFile()).setNegativeButton("Cancel",null).show();
+    }
+    void chooseSteamFile(){
+        Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);
+        try{startActivityForResult(i,1);}catch(ActivityNotFoundException ex){new AlertDialog.Builder(this).setMessage("Enable Android's Files app to select your Steam EXE or data ZIP.").setPositiveButton("OK",null).show();}
+    }
+    @Override protected void onActivityResult(int req,int result,Intent data){
+        super.onActivityResult(req,result,data);
+        if(req==1&&result==RESULT_OK&&data!=null&&data.getData()!=null)assets.importPack(data.getData(),()->handler.post(()->{
+            if(isDestroyed()||isFinishing())return;
+            boolean failed=assets.status.startsWith("Import failed");
+            if(!failed){state.stop();audio.stopAll();assets.warm();page=selected=0;}
+            top.invalidate();if(bottom!=null)bottom.invalidate();
+            new AlertDialog.Builder(this).setTitle(failed?"Import failed":"Ready to play")
+                .setMessage(failed?assets.status:"Your Steam data is stored on this device. Start a night from the main menu.").setPositiveButton("OK",null).show();
+        }));
+    }
     String[] menu(){return new String[]{"Continue","Night "+state.night,"Challenges","Achievements","Office Shop","Gallery","Arcade","Settings","New Game"};}
     static int challengeReward(int index){int total=0;for(int n:Fnaf2State.PRESETS[index])total+=n;return 200+total*4;}
     void navigate(int direction){if(page==7)arcadeSelection=Math.floorMod(arcadeSelection+direction,4);else if(page==8)encounterSelection=Math.floorMod(encounterSelection+direction,EncounterCatalog.TITLES.length);else if(page==6)aiSelection=Math.floorMod(aiSelection+direction,11);else if(page==5)settingSelection=Math.floorMod(settingSelection+direction,9);else if(page==2)shopSelection=Math.floorMod(shopSelection+direction,5);else if(page==4)challengeSelection=Math.floorMod(challengeSelection+direction,10);else if(page==0)selected=Math.floorMod(selected+direction,menu().length);audio.play("select","blip3",false,.45f);}
@@ -142,8 +162,13 @@ public final class MainActivity extends Activity implements DisplayManager.Displ
         if(state.won||state.dead||state.phase!=0)return;
         state.paused=!state.paused;resetControls();audio.pause(state.paused);
     }
+    final InputProfile inputProfile=new InputProfile();
+    boolean ctrlLeft,ctrlRight;
+    void useInput(int mode){if(inputProfile.select(mode)){resetControls();if(top!=null)top.clearPointer();if(bottom!=null)bottom.clearPointer();}controllerInput=mode==InputProfile.CONTROLLER;}
     boolean keys(KeyEvent e){int k=e.getKeyCode();boolean down=e.getAction()==KeyEvent.ACTION_DOWN;
-        if(down&&(KeyEvent.isGamepadButton(k)||(k>=KeyEvent.KEYCODE_DPAD_UP&&k<=KeyEvent.KEYCODE_DPAD_CENTER)))controllerInput=true;
+        if(down&&e.getRepeatCount()==0)useInput(InputProfile.controllerSource(e.getSource())?InputProfile.CONTROLLER:InputProfile.PC);
+        if(k==KeyEvent.KEYCODE_CTRL_LEFT||k==KeyEvent.KEYCODE_CTRL_RIGHT){if(k==KeyEvent.KEYCODE_CTRL_LEFT)ctrlLeft=down;else ctrlRight=down;if(inputProfile.mode==InputProfile.PC&&intro==0&&ending==0)state.setFlashlight(ctrlLeft||ctrlRight);return true;}
+        if(k==KeyEvent.KEYCODE_ESCAPE){if(down&&e.getRepeatCount()==0)back();return true;}
         if(down&&e.getRepeatCount()>0)return true;
         if(k==KeyEvent.KEYCODE_BACK||k==KeyEvent.KEYCODE_BUTTON_SELECT){if(down)back();return true;}
         if(minigame.active){if(k==KeyEvent.KEYCODE_BUTTON_START){if(down)back();return true;}if(!minigame.paused){if(k==KeyEvent.KEYCODE_DPAD_LEFT||k==KeyEvent.KEYCODE_A)minigame.left=down;if(k==KeyEvent.KEYCODE_DPAD_RIGHT||k==KeyEvent.KEYCODE_D)minigame.right=down;if(k==KeyEvent.KEYCODE_DPAD_UP||k==KeyEvent.KEYCODE_W)minigame.up=down;if(k==KeyEvent.KEYCODE_DPAD_DOWN||k==KeyEvent.KEYCODE_S)minigame.down=down;}return true;}
@@ -152,13 +177,14 @@ public final class MainActivity extends Activity implements DisplayManager.Displ
         if(shortcut(k,down))return true;
         if(ending>0)return true;if(intro>0)return k>=KeyEvent.KEYCODE_BUTTON_A&&k<=KeyEvent.KEYCODE_BUTTON_MODE;
         if(!state.playing){if(!down)return false;if(k==KeyEvent.KEYCODE_DPAD_UP){navigate(-1);return true;}if(k==KeyEvent.KEYCODE_DPAD_DOWN){navigate(1);return true;}if(k==KeyEvent.KEYCODE_DPAD_LEFT||k==KeyEvent.KEYCODE_DPAD_RIGHT){if(page==6)adjustAI(k==KeyEvent.KEYCODE_DPAD_LEFT?-1:1);else if(page==2||page==4)navigate(k==KeyEvent.KEYCODE_DPAD_LEFT?-1:1);else if(page==0&&(selected==0||selected==1))state.night=Math.max(1,Math.min(unlocked,state.night+(k==KeyEvent.KEYCODE_DPAD_LEFT?-1:1)));return true;}if(k==KeyEvent.KEYCODE_BUTTON_Y&&page==4){editAI();return true;}if(k==KeyEvent.KEYCODE_BUTTON_A||k==KeyEvent.KEYCODE_ENTER){confirm();return true;}if(k==KeyEvent.KEYCODE_BUTTON_B||k==KeyEvent.KEYCODE_BACK){page=page==3?5:page==6?4:0;return true;}return false;}
+        if(inputProfile.mode==InputProfile.PC)return true;
         if(state.won||state.dead)return false;
         if(state.phase==1){if(k==KeyEvent.KEYCODE_BUTTON_A){aHeld=down;refreshFlashlight();return true;}if(k==KeyEvent.KEYCODE_BUTTON_L2){leftKey=down;refreshFlashlight();return true;}return false;}
         if(k==KeyEvent.KEYCODE_BUTTON_START){if(down){state.paused=!state.paused;resetControls();audio.pause(state.paused);}return true;}
         if(state.paused){if(down&&k==KeyEvent.KEYCODE_BUTTON_B){state.stop();state.night=Math.min(unlocked,6);state.challenge=-1;audio.stopAll();}return true;}
         switch(k){case KeyEvent.KEYCODE_BUTTON_L2:leftKey=down;controllerTriggers();break;case KeyEvent.KEYCODE_BUTTON_THUMBL:case KeyEvent.KEYCODE_BUTTON_THUMBR:break;case KeyEvent.KEYCODE_BUTTON_X:if(down)monitor();break;case KeyEvent.KEYCODE_BUTTON_B:if(down)mask();break;case KeyEvent.KEYCODE_BUTTON_R2:rightKey=down;controllerTriggers();break;case KeyEvent.KEYCODE_BUTTON_A:aHeld=down;refreshFlashlight();break;case KeyEvent.KEYCODE_BUTTON_L1:state.setVent(true,down);break;case KeyEvent.KEYCODE_BUTTON_R1:state.setVent(false,down);break;case KeyEvent.KEYCODE_DPAD_LEFT:if(down)stepCamera(-1);break;case KeyEvent.KEYCODE_DPAD_RIGHT:if(down)stepCamera(1);break;case KeyEvent.KEYCODE_DPAD_UP:if(down)camera(state.camera-3);break;case KeyEvent.KEYCODE_DPAD_DOWN:if(down)camera(state.camera+3);break;case KeyEvent.KEYCODE_BUTTON_Y:if(down)audio.stop("phone");break;default:return false;}return true;
     }
-    void resetControls(){minigame.clearInputs();arcadeStickX=arcadeStickY=0;dream.pan=0;state.setQuickWind(false);state.clearInputs();skipChord.reset();scareChord.reset();hatX=hatY=0;aHeld=leftKey=rightKey=leftAxis=rightAxis=rightHeld=controllerFlash=false;}
+    void resetControls(){ctrlLeft=ctrlRight=false;minigame.clearInputs();arcadeStickX=arcadeStickY=0;dream.pan=0;state.setQuickWind(false);state.clearInputs();skipChord.reset();scareChord.reset();hatX=hatY=0;aHeld=leftKey=rightKey=leftAxis=rightAxis=rightHeld=controllerFlash=false;}
     void controllerTriggers(){
         boolean right=rightKey||rightAxis;
         if(right!=rightHeld){rightHeld=right;boolean before=state.monitor,maskBefore=state.mask;if(!right||(state.live()&&intro==0&&ending==0))state.setQuickWind(right);
@@ -168,6 +194,7 @@ public final class MainActivity extends Activity implements DisplayManager.Displ
         refreshFlashlight();
     }
     void refreshFlashlight(){
+        if(inputProfile.mode==InputProfile.PC){if((ctrlLeft||ctrlRight)&&intro==0&&ending==0)state.setFlashlight(true);return;}
         boolean active=state.playing&&!state.paused&&!state.dead&&!state.won&&intro==0&&ending==0&&(aHeld||(state.monitor&&(leftKey||leftAxis)));
         if(active||controllerFlash)state.setFlashlight(active);
         controllerFlash=active;
@@ -183,7 +210,9 @@ public final class MainActivity extends Activity implements DisplayManager.Displ
     }
     @Override public boolean dispatchGenericMotionEvent(MotionEvent e){return motion(e)||super.dispatchGenericMotionEvent(e);}
     boolean motion(MotionEvent e){if((e.getSource()&InputDevice.SOURCE_JOYSTICK)!=InputDevice.SOURCE_JOYSTICK)return false;
-        for(int axis:new int[]{MotionEvent.AXIS_X,MotionEvent.AXIS_Y,MotionEvent.AXIS_Z,MotionEvent.AXIS_RX,MotionEvent.AXIS_HAT_X,MotionEvent.AXIS_HAT_Y,MotionEvent.AXIS_LTRIGGER,MotionEvent.AXIS_RTRIGGER,MotionEvent.AXIS_BRAKE,MotionEvent.AXIS_GAS})if(Math.abs(e.getAxisValue(axis))>.2f){controllerInput=true;break;}
+        boolean active=false;for(int axis:new int[]{MotionEvent.AXIS_X,MotionEvent.AXIS_Y,MotionEvent.AXIS_Z,MotionEvent.AXIS_RX,MotionEvent.AXIS_HAT_X,MotionEvent.AXIS_HAT_Y,MotionEvent.AXIS_LTRIGGER,MotionEvent.AXIS_RTRIGGER,MotionEvent.AXIS_BRAKE,MotionEvent.AXIS_GAS})if(Math.abs(e.getAxisValue(axis))>.2f){active=true;break;}
+        if(active)useInput(InputProfile.CONTROLLER);
+        if(inputProfile.mode!=InputProfile.CONTROLLER)return true;
         if(minigame.active){if(!minigame.paused){float mx=e.getAxisValue(MotionEvent.AXIS_X)+e.getAxisValue(MotionEvent.AXIS_HAT_X),my=e.getAxisValue(MotionEvent.AXIS_Y)+e.getAxisValue(MotionEvent.AXIS_HAT_Y);minigame.stickLeft=mx<-.3;minigame.stickRight=mx>.3;minigame.stickUp=my<-.3;minigame.stickDown=my>.3;}return true;}
         if(dream.active()){dream.pan=stickAxis(e.getAxisValue(MotionEvent.AXIS_X));return true;}
         float x=e.getAxisValue(MotionEvent.AXIS_X),hx=e.getAxisValue(MotionEvent.AXIS_HAT_X),hy=e.getAxisValue(MotionEvent.AXIS_HAT_Y);

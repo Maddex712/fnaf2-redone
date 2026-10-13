@@ -17,11 +17,11 @@ final class SecurityDesk {
         text(c,s.maskMotion!=0?"MASK IN MOTION":s.mask?"MASK ON":"MASK OFF",w*.39f,343,18);
         float gap=12,bw=(w-108)/3;
         v.button(c,"LEFT VENT",42,388,bw,68,s.leftLight);v.button(c,"HALL LIGHT",54+bw,388,bw,68,s.flashlight);v.button(c,"RIGHT VENT",66+2*bw,388,bw,68,s.rightLight);
-        text(c,"HOLD TO LIGHT / L1        A       R1",42,487,18);
-        v.button(c,"X  CAMERAS / CAM "+String.format(java.util.Locale.US,"%02d",s.camera+1),42,516,w-84,67,false);
-        v.button(c,s.mask?"B  REMOVE FREDDY MASK":"B  PUT ON FREDDY MASK",42,598,w-84,58,s.mask);
-        v.button(c,"Y  MUTE CALL",42,687,(w-96)/2,46,false);v.button(c,"START  PAUSE",54+(w-96)/2,687,(w-96)/2,46,false);
-        text(c,s.musicBox<.2?"!  HOLD R2 / WIND MUSIC BOX":"HOLD R2 / PRIZE CORNER + WIND",42,675,17);
+        text(c,a.controllerInput?"HOLD TO LIGHT / L1        A       R1":"HOLD VENT BUTTON / CTRL: HALL LIGHT",42,487,18);
+        v.button(c,(a.controllerInput?"X  CAMERAS / CAM ":"CAMERAS / CAM ")+String.format(java.util.Locale.US,"%02d",s.camera+1),42,516,w-84,67,false);
+        v.button(c,s.mask?(a.controllerInput?"B  REMOVE FREDDY MASK":"REMOVE FREDDY MASK"):(a.controllerInput?"B  PUT ON FREDDY MASK":"PUT ON FREDDY MASK"),42,598,w-84,58,s.mask);
+        v.button(c,a.controllerInput?"Y  MUTE CALL":"MUTE CALL",42,687,(w-96)/2,46,false);v.button(c,a.controllerInput?"START  PAUSE":"PAUSE",54+(w-96)/2,687,(w-96)/2,46,false);
+        text(c,a.controllerInput?(s.musicBox<.2?"!  HOLD R2 / WIND MUSIC BOX":"HOLD R2 / PRIZE CORNER + WIND"):"CAM 11: HOLD WIND MUSIC BOX",42,675,17);
         v.menuBackdrop.terminal(c,w,android.os.SystemClock.uptimeMillis());
     }
     void lamp(Canvas c,float x,float y,boolean on){v.p.setColor(on?0xffd6e5a3:0xff343c32);c.drawCircle(x,y,9,v.p);}

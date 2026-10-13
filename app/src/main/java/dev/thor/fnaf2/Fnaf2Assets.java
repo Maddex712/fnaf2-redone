@@ -30,13 +30,21 @@ final class Fnaf2Assets {
     static String read(InputStream in)throws IOException{ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1)out.write(b,0,n);return out.toString("UTF-8");}
     void importPack(Uri uri,Runnable done){
         if(importing)return;importing=true;status="Importing Steam data…";
-        worker.execute(()->{File temp=new File(game.getParentFile(),"import-temp"),old=new File(game.getParentFile(),"previous-game");
+        worker.execute(()->{File temp=new File(game.getParentFile(),"import-temp"),old=new File(game.getParentFile(),"previous-game"),executable=new File(context.getCacheDir(),"fnaf2-steam-import.exe");
             try{clear(temp);if(!temp.mkdirs())throw new IOException("Cannot create import directory");int count=0;long total=0;Set<String> names=new HashSet<>();
+                boolean exe;try(InputStream probe=context.getContentResolver().openInputStream(uri)){if(probe==null)throw new IOException("Cannot open selected file");exe=probe.read()=='M'&&probe.read()=='Z';}
+                if(exe){
+                    status="Copying Steam file…";try(InputStream in=context.getContentResolver().openInputStream(uri);OutputStream out=new FileOutputStream(executable)){
+                        byte[] buf=new byte[65536];int n;long copied=0;while((n=in.read(buf))!=-1){copied+=n;if(copied>512L*1024*1024)throw new IOException("Steam file is too large");out.write(buf,0,n);}
+                    }
+                    clear(temp);SteamImporter.extract(executable,temp,message->status=message);count=871;
+                }else{
                 try(ZipInputStream zip=new ZipInputStream(new BufferedInputStream(context.getContentResolver().openInputStream(uri)))){ZipEntry e;byte[] buf=new byte[65536];while((e=zip.getNextEntry())!=null){String n=e.getName();if(e.isDirectory())continue;if(!(n.matches("Images/[0-9]{5}\\.png")||n.matches("Sounds/[^/\\\\]{1,100}\\.wav")||n.equals("pack.json")))throw new IOException("Unexpected pack entry");if(++count>900||!names.add(n))throw new IOException("Invalid pack entries");File f=new File(temp,n);f.getParentFile().mkdirs();try(OutputStream out=new FileOutputStream(f)){int len;while((len=zip.read(buf))!=-1){total+=len;if(total>1024L*1024*1024)throw new IOException("Pack too large");out.write(buf,0,len);}}}}
+                }
                 try(InputStream in=new FileInputStream(new File(temp,"pack.json"))){if(!"fnaf2-steam-288".equals(new JSONObject(read(in)).optString("format")))throw new IOException("Wrong game pack");}
                 if(count!=871||!new File(temp,"Images/00092.png").isFile())throw new IOException("Incomplete FNaF 2 pack");
                 clear(old);if(game.exists()&&!game.renameTo(old))throw new IOException("Cannot replace game pack");if(!temp.renameTo(game)){old.renameTo(game);throw new IOException("Cannot activate game pack");}clear(old);cache.evictAll();ready=true;status="Steam data ready";
-            }catch(Exception ex){status="Import failed: "+ex.getMessage();}finally{importing=false;done.run();}
+            }catch(Exception ex){status="Import failed: "+ex.getMessage();}finally{try{clear(temp);clear(executable);}catch(IOException ignored){}importing=false;done.run();}
         });
     }
     static void clear(File f)throws IOException{if(!f.exists())return;if(f.isDirectory()){File[] cs=f.listFiles();if(cs==null)throw new IOException("Cannot read import folder");for(File c:cs)clear(c);}if(!f.delete())throw new IOException("Cannot clean import folder");}

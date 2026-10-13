@@ -1,0 +1,8 @@
+package android.content;
+import java.io.*;import java.nio.file.*;import java.util.Properties;
+public class SharedPreferences {
+ final Properties values=new Properties();final File file;
+ public SharedPreferences(File directory){file=new File(directory,"settings.properties");try(InputStream in=new FileInputStream(file)){values.load(in);}catch(IOException ignored){}}
+ public int getInt(String k,int d){try{return Integer.parseInt(values.getProperty(k));}catch(Exception e){return d;}}public String getString(String k,String d){return values.getProperty(k,d);}public boolean getBoolean(String k,boolean d){return Boolean.parseBoolean(values.getProperty(k,""+d));}public Editor edit(){return new Editor();}
+ public class Editor {final Properties changes=new Properties();public Editor putLong(String k,long v){changes.setProperty(k,""+v);return this;}public Editor putInt(String k,int v){changes.setProperty(k,""+v);return this;}public Editor putBoolean(String k,boolean v){changes.setProperty(k,""+v);return this;}public Editor putString(String k,String v){changes.setProperty(k,v);return this;}public void apply(){values.putAll(changes);File temp=new File(file.getParentFile(),"settings.tmp");try{try(OutputStream out=new FileOutputStream(temp)){values.store(out,"FNaF Redone local settings");}try{Files.move(temp.toPath(),file.toPath(),StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);}catch(AtomicMoveNotSupportedException e){Files.move(temp.toPath(),file.toPath(),StandardCopyOption.REPLACE_EXISTING);}}catch(IOException e){System.err.println("Could not save settings: "+e.getMessage());}}}
+}

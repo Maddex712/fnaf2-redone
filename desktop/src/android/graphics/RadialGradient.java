@@ -1,0 +1,2 @@
+package android.graphics;
+public class RadialGradient extends Shader {final java.awt.RadialGradientPaint value;public RadialGradient(float x,float y,float radius,int[] colors,float[] positions,TileMode mode){java.awt.Color[] cs=new java.awt.Color[colors.length];for(int i=0;i<cs.length;i++)cs[i]=new java.awt.Color(colors[i],true);if(positions==null){positions=new float[colors.length];for(int i=0;i<positions.length;i++)positions[i]=i/(float)(positions.length-1);}value=new java.awt.RadialGradientPaint(x,y,radius,positions,cs);}java.awt.Paint paint(){return transformed(value);}}

@@ -1,0 +1,44 @@
+package dev.thor.fnaf2;
+import android.content.*;import android.os.*;import android.view.*;
+import javax.swing.*;import java.awt.*;import java.io.*;import java.nio.file.*;import java.util.concurrent.*;
+public final class MainActivity extends android.content.Context {
+/*FIELDS*/
+    JFrame window;DesktopController controller;DesktopFramePump pump;boolean closed,fullscreen;
+    java.nio.channels.FileChannel lockChannel;java.nio.channels.FileLock instanceLock;
+    final java.util.Set<Integer> keyboard=new java.util.HashSet<>();
+    public static void main(String[] args){SwingUtilities.invokeLater(()->{try{UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());new MainActivity().start();}catch(Exception e){e.printStackTrace();JOptionPane.showMessageDialog(null,e.toString(),"FNaF 2 Redone",JOptionPane.ERROR_MESSAGE);}});}
+    void initialize(){/*SETUP*/}
+    void start()throws Exception{
+        lockChannel=java.nio.channels.FileChannel.open(new File(getFilesDir(),"desktop.lock").toPath(),StandardOpenOption.CREATE,StandardOpenOption.WRITE);instanceLock=lockChannel.tryLock();
+        if(instanceLock==null){lockChannel.close();JOptionPane.showMessageDialog(null,"FNaF 2 Redone is already running.");return;}
+        initialize();inputProfile.select(InputProfile.PC);
+        top=new Fnaf2View(this,this,true);top.setPreferredSize(new Dimension(1024,768));top.setRenderMode(2);
+        window=new JFrame("FNaF 2 Redone");window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);window.setContentPane(top);window.pack();window.setLocationRelativeTo(null);
+        JMenuBar menu=new JMenuBar();JMenu gameMenu=new JMenu("Game");JMenuItem scan=new JMenuItem("Scan / import Steam copy…");scan.addActionListener(e->importData());gameMenu.add(scan);JMenuItem pause=new JMenuItem("Pause / resume");pause.addActionListener(e->back());gameMenu.add(pause);JMenuItem full=new JMenuItem("Fullscreen (F11)");full.addActionListener(e->toggleFullscreen());gameMenu.add(full);JMenuItem exit=new JMenuItem("Exit");exit.addActionListener(e->finish());gameMenu.add(exit);menu.add(gameMenu);window.setJMenuBar(menu);window.pack();
+        window.addWindowListener(new java.awt.event.WindowAdapter(){public void windowClosing(java.awt.event.WindowEvent e){finish();}});
+        window.addWindowFocusListener(new java.awt.event.WindowAdapter(){public void windowLostFocus(java.awt.event.WindowEvent e){loseFocus();}public void windowGainedFocus(java.awt.event.WindowEvent e){last=SystemClock.elapsedRealtimeNanos();audio.pause(state.paused||minigame.paused);if(controller!=null)controller.resume();}});
+        java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e->{
+            if(closed||!window.isFocused()||MenuSelectionManager.defaultManager().getSelectedPath().length>0)return false;boolean down=e.getID()==java.awt.event.KeyEvent.KEY_PRESSED;if(!down&&e.getID()!=java.awt.event.KeyEvent.KEY_RELEASED)return false;
+            int repeat=down&&!keyboard.add(e.getKeyCode())?1:0;if(!down)keyboard.remove(e.getKeyCode());
+            if(e.getKeyCode()==java.awt.event.KeyEvent.VK_F11){if(down&&repeat==0)toggleFullscreen();return true;}
+            int key=DesktopController.keyboardCode(e.getKeyCode());if(e.getKeyCode()==java.awt.event.KeyEvent.VK_CONTROL&&e.getKeyLocation()==java.awt.event.KeyEvent.KEY_LOCATION_RIGHT)key=KeyEvent.KEYCODE_CTRL_RIGHT;return key>=0&&keys(new KeyEvent(key,down,repeat,InputDevice.SOURCE_KEYBOARD));
+        });
+        controller=new DesktopController(this);controller.startReader();resumed=true;last=SystemClock.elapsedRealtimeNanos();window.setVisible(true);top.requestFocusInWindow();pump=new DesktopFramePump(frame);
+    }
+    boolean desktopUpper(){if(minigame.active||dream.active()||intro>0||ending>0)return true;if(!state.playing)return page==0||page==5||page==7||page==8;return !state.monitor||!state.live();}
+    void loseFocus(){keyboard.clear();resetControls();state.pauseForInterruption();if(minigame.active)minigame.paused=true;audio.pause(true);if(controller!=null)controller.suspend();top.clearPointer();}
+    void toggleFullscreen(){boolean paused=state.paused;fullscreen=!fullscreen;window.dispose();window.setUndecorated(fullscreen);window.setExtendedState(fullscreen?JFrame.MAXIMIZED_BOTH:JFrame.NORMAL);window.setVisible(true);state.paused=paused;last=SystemClock.elapsedRealtimeNanos();}
+    boolean isDestroyed(){return closed;}boolean isFinishing(){return closed;}
+    void openProject(){try{java.awt.Desktop.getDesktop().browse(java.net.URI.create("https://github.com/Maddex712/fnaf2-redone"));}catch(Exception e){notice="Could not open browser";}}
+    void importData(){
+        if(assets.importing)return;loseFocus();
+        String[] choices={"Scan Steam libraries","Select EXE or data ZIP","Cancel"};int choice=JOptionPane.showOptionDialog(window,"Use your purchased FNaF 2 Steam copy. Setup stays on this PC.","Steam setup",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,choices,choices[0]);
+        if(choice==0){CompletableFuture.supplyAsync(SteamLocator::findInstalled).whenComplete((found,error)->SwingUtilities.invokeLater(()->{if(closed)return;if(error!=null||found.isEmpty()){JOptionPane.showMessageDialog(window,"No FNaF 2 Steam installation found. Select your EXE or prepared data ZIP.");chooseSteamFile();}else if(found.size()==1)importSelected(found.get(0).toFile());else{Object selected=JOptionPane.showInputDialog(window,"Choose your Steam installation","Steam setup",JOptionPane.PLAIN_MESSAGE,null,found.toArray(),found.get(0));if(selected!=null)importSelected(((Path)selected).toFile());}}));}
+        else if(choice==1)chooseSteamFile();
+    }
+    void chooseSteamFile(){JFileChooser picker=new JFileChooser();picker.setDialogTitle("Select FiveNightsatFreddys2.exe or your FNaF 2 data ZIP");picker.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Steam game EXE or data ZIP","exe","zip"));if(picker.showOpenDialog(window)==JFileChooser.APPROVE_OPTION)importSelected(picker.getSelectedFile());}
+    void importSelected(File file){assets.importPack(new android.net.Uri(file),()->handler.post(()->{if(closed)return;boolean failed=assets.status.startsWith("Import failed");if(!failed){state.stop();audio.stopAll();assets.warm();page=selected=0;}top.repaint();JOptionPane.showMessageDialog(window,failed?assets.status:"Your Steam copy is ready. Select New Game.",failed?"Import failed":"Ready to play",failed?JOptionPane.ERROR_MESSAGE:JOptionPane.INFORMATION_MESSAGE);}));}
+    void finish(){if(closed)return;closed=true;resumed=false;if(pump!=null)pump.close();if(controller!=null)controller.close();handler.removeCallbacksAndMessages(null);audio.stopAll();if(minigameArt!=null)minigameArt.close();encounters.close();assets.close();window.dispose();try{if(instanceLock!=null)instanceLock.release();if(lockChannel!=null)lockChannel.close();}catch(IOException e){e.printStackTrace();}}
+/*FRAME*/
+/*LOGIC*/
+}

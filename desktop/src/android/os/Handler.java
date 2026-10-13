@@ -1,0 +1,2 @@
+package android.os;
+public class Handler {final java.util.Set<javax.swing.Timer> timers=new java.util.HashSet<>();public Handler(Looper l){}public void post(Runnable r){postDelayed(r,0);}public void postDelayed(Runnable r,long ms){javax.swing.Timer t=new javax.swing.Timer((int)ms,null);t.setRepeats(false);t.addActionListener(e->{timers.remove(t);r.run();});timers.add(t);t.start();}public void removeCallbacksAndMessages(Object x){for(javax.swing.Timer t:timers)t.stop();timers.clear();}}

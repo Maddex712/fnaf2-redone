@@ -11,6 +11,10 @@ $out=Join-Path $PSScriptRoot 'build'
 New-Item -ItemType Directory -Force $out,(Join-Path $out 'classes'),(Join-Path $out 'dex'),(Join-Path $out 'tests') | Out-Null
 function Check([string]$Name) { if ($LASTEXITCODE -ne 0) { throw "$Name failed with exit code $LASTEXITCODE" } }
 $source=Join-Path $PSScriptRoot 'app/src/main'
+& javac --release 8 -d (Join-Path $out 'tests') (Join-Path $source 'java/dev/thor/fnaf2/InputProfile.java') (Join-Path $PSScriptRoot 'tests/InputProfileTest.java')
+Check 'Input profile compilation'
+& java -cp (Join-Path $out 'tests') dev.thor.fnaf2.InputProfileTest
+Check 'Input profile tests'
 & (Join-Path $jdk 'javac.exe') --release 8 -d (Join-Path $out 'tests') (Join-Path $source 'java/dev/thor/fnaf2/EventTimers.java') (Join-Path $source 'java/dev/thor/fnaf2/SourceRandom.java') (Join-Path $PSScriptRoot 'tests/SourceRandomTest.java') (Join-Path $source 'java/dev/thor/fnaf2/DreamSequence.java') (Join-Path $source 'java/dev/thor/fnaf2/ToyBonnieWalk.java') (Join-Path $source 'java/dev/thor/fnaf2/Fnaf2State.java') (Join-Path $source 'java/dev/thor/fnaf2/Fnaf2Catalog.java') (Join-Path $source 'java/dev/thor/fnaf2/ScarePlayback.java') (Join-Path $source 'java/dev/thor/fnaf2/ButtonChord.java') (Join-Path $source 'java/dev/thor/fnaf2/InputRouting.java') (Join-Path $PSScriptRoot 'tests/Fnaf2StateTest.java') (Join-Path $PSScriptRoot 'tests/GameplayParityTest.java')
 Check 'Test compilation'
 & (Join-Path $jdk 'java.exe') -cp (Join-Path $out 'tests') dev.thor.fnaf2.Fnaf2StateTest
@@ -37,7 +41,7 @@ Check 'Encounter test compilation'
 Check 'Encounter and mask tests'
 
 $manifest=Join-Path $source 'AndroidManifest.xml'
-& $aapt link -I $androidJar --manifest $manifest -A (Join-Path $source 'assets') --min-sdk-version 26 --target-sdk-version 35 --version-code 22 --version-name '0.3.10-alpha' -o (Join-Path $out 'unsigned.apk')
+& $aapt link -I $androidJar --manifest $manifest -A (Join-Path $source 'assets') --min-sdk-version 26 --target-sdk-version 35 --version-code 24 --version-name '0.3.12-alpha' -o (Join-Path $out 'unsigned.apk')
 Check 'Resource linking'
 $files=Get-ChildItem (Join-Path $source 'java') -Recurse -Filter '*.java' | ForEach-Object FullName
 & (Join-Path $jdk 'javac.exe') --release 8 -cp $androidJar -d (Join-Path $out 'classes') @files
@@ -53,7 +57,7 @@ try { [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($apk,(Join-Path $o
 Check 'APK alignment'
 $key=(Resolve-Path -LiteralPath $SigningKey).Path
 if (!$env:FNAF_SIGNING_PASSWORD) { throw 'Set FNAF_SIGNING_PASSWORD for your private key.' }
-$final=Join-Path $out 'FNaF2-Redone-0.3.10.apk'
+$final=Join-Path $out 'FNaF2-Redone-0.3.12.apk'
 & (Join-Path $buildTools 'apksigner.bat') sign --ks $key --ks-key-alias $KeyAlias --ks-pass env:FNAF_SIGNING_PASSWORD --key-pass env:FNAF_SIGNING_PASSWORD --out $final (Join-Path $out 'aligned.apk')
 Check 'APK signing'
 & (Join-Path $buildTools 'apksigner.bat') verify --verbose $final

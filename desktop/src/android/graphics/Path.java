@@ -1,0 +1,2 @@
+package android.graphics;
+public class Path {public enum Direction{CW,CCW}final java.awt.geom.Path2D.Float value=new java.awt.geom.Path2D.Float();public void reset(){value.reset();}public void moveTo(float x,float y){value.moveTo(x,y);}public void lineTo(float x,float y){value.lineTo(x,y);}public void close(){value.closePath();}public void addRoundRect(RectF r,float rx,float ry,Direction d){value.append(new java.awt.geom.RoundRectangle2D.Float(r.left,r.top,r.width(),r.height(),2*rx,2*ry),false);}}

@@ -1,0 +1,2 @@
+package android.graphics;
+public class BitmapFactory {public static Bitmap decodeFile(String path){return decodeFile(path,new Options());}public static class Options{public boolean inScaled;}public static Bitmap decodeStream(java.io.InputStream in){try{java.awt.image.BufferedImage b=javax.imageio.ImageIO.read(in);return b==null?null:new Bitmap(b);}catch(java.io.IOException e){return null;}}public static Bitmap decodeFile(String p,Options o){try(java.io.InputStream in=new java.io.FileInputStream(p)){return decodeStream(in);}catch(java.io.IOException e){return null;}}}

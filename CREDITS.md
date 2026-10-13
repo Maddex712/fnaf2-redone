@@ -10,3 +10,6 @@
   [System.IO.Hashing](https://github.com/dotnet/runtime). Refer to their package licenses.
 
 No affiliation or endorsement by Scott Cawthon, Steam, or AYN is claimed.
+
+- Windows host: authored Java2D/Swing adaptation of the shared runtime, based on the FNaF 1 Redone desktop adapters. No Android emulator or Steam runtime is used.
+- Windows dependencies: JNA 5.14.0 (Apache 2.0 / LGPL 2.1) and JSON-java 20240303 (public domain). Bundled runtime: Microsoft OpenJDK 21; its license files accompany the portable package.

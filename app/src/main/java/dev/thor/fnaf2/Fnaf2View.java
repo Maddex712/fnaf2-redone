@@ -37,12 +37,12 @@ final class Fnaf2View extends View {
             app.encounters.save(id,image,app.state.night,app.state.monitor?"CAM "+(app.state.camera+1):"Office");
         }
     }
-    @Override protected void onDraw(Canvas c){super.onDraw(c);c.drawColor(Color.BLACK);if(app.bottom==null){float h=getHeight()/2f;drawScaled(c,true,getWidth(),h,0);drawScaled(c,false,getWidth(),h,h);}else drawScaled(c,upper,getWidth(),getHeight(),0);}
-    void drawScaled(Canvas c,boolean up,float width,float height,float y){c.save();c.translate(0,y);float scale=height/768;vw=width/scale;c.scale(scale,scale);if(!up&&useMonitorShell())monitorShell.draw(c,this,vw);else pane(c,up,vw);c.restore();}
+    @Override protected void onDraw(Canvas c){super.onDraw(c);c.drawColor(Color.BLACK);if(pcSingle()){drawScaled(c,pcUpper(),getWidth(),getHeight(),0);}else if(app.bottom==null){float h=getHeight()/2f;drawScaled(c,true,getWidth(),h,0);drawScaled(c,false,getWidth(),h,h);}else drawScaled(c,upper,getWidth(),getHeight(),0);}
+    void drawScaled(Canvas c,boolean up,float width,float height,float y){c.save();c.translate(0,y);float scale=height/768;vw=width/scale;c.scale(scale,scale);if(!up&&useMonitorShell())monitorShell.draw(c,this,vw);else pane(c,up,vw);if(pcSingle()&&pcGameplay()&&app.state.cameraFlipImage()>=0)image(c,app.state.cameraFlipImage(),0,0,vw,768,true);if(pcGameplay()&&(up||app.state.monitor))pointerBars(c,vw);if(pcGameplay()&&app.audio.channels.containsKey("phone"))image(c,191,172,42,121,31,false);c.restore();}
     boolean useMonitorShell(){Fnaf2State s=app.state;return !app.minigame.active&&app.assets.ready&&app.intro==0&&app.ending==0&&(!s.playing||s.dead||s.paused||s.phase==1||(!s.monitor&&!s.won&&s.phase==0));}
     void pane(Canvas c,boolean up,float w){
         Fnaf2State s=app.state;
-        if(!app.assets.ready){text(c,"FIVE NIGHTS AT FREDDY'S 2",45,190,34,WHITE);text(c,app.assets.status,45,370,22,WHITE);text(c,"A / TAP TO IMPORT STEAM DATA",45,520,22,WHITE);return;}
+        if(!app.assets.ready){text(c,"FIVE NIGHTS AT FREDDY'S 2",45,190,34,WHITE);text(c,app.assets.status,45,370,22,WHITE);text(c,app.assets.importing?"PREPARING YOUR STEAM DATA…":"SCAN STEAM FILE / SELECT EXE OR ZIP",45,520,22,WHITE);return;}
         if(app.minigame.active){drawMinigame(c,up,w);return;}
         if(app.dream.active()){drawDream(c,up,w);return;}
         if(app.ending>0){if(up)image(c,app.ending,0,0,w,768,false);else{text(c,"SHIFT COMPLETE",45,300,35,WHITE);text(c,app.notice,45,370,24,WHITE);}return;}
@@ -80,7 +80,7 @@ final class Fnaf2View extends View {
         arcadeDeck.reset();arcadeDeck.moveTo(51,158);arcadeDeck.lineTo(w-51,158);arcadeDeck.lineTo(w-30,542);arcadeDeck.lineTo(30,542);arcadeDeck.close();
         arcadePaint.setShader(arcadeLaminate);c.drawPath(arcadeDeck,arcadePaint);arcadePaint.setShader(null);
         rect(c,31,542,w-62,17,0xff11110d);rect(c,35,542,w-70,3,0xff787563);
-        centered(c,m.paused?"PAUSED - TAP TO RESUME":app.controllerInput?"D-PAD / LEFT STICK TO MOVE":"TOUCH THE D-PAD TO MOVE",w,209,21,0xffb4b5a4,false);
+        centered(c,m.paused?"PAUSED - TAP TO RESUME":app.controllerInput?"D-PAD / LEFT STICK TO MOVE":app.inputProfile.mode==InputProfile.PC?"WASD / ARROW KEYS TO MOVE":"TOUCH THE D-PAD TO MOVE",w,209,21,0xffb4b5a4,false);
         arcadeWear(c,57,226,w-114,299,125);
         if(!app.controllerInput)for(int[] d:new int[][]{{-1,0},{1,0},{0,-1},{0,1}}){float x=w/2+d[0]*104,y=405+d[1]*104;rect(c,x-44,y-41,88,88,0xff080a08);rect(c,x-44,y-44,88,84,0xff33372d);outline(c,x-44,y-44,88,84,0xff5e6353);text(c,d[0]<0?"<":d[0]>0?">":d[1]<0?"^":"v",x-9,y+10,30,0xffb9bca7);}
         float jx=w*.17f,jy=405,bx=jx+app.arcadeStickX*34,by=340+app.arcadeStickY*28;
@@ -160,8 +160,8 @@ final class Fnaf2View extends View {
         if(s.signalTicks>0)centered(c,"SIGNAL INTERRUPTED",w,330,25,WHITE,false);
         float mx=w-380,my=435,mw=340,mh=255;image(c,2,mx,my,mw,mh,false);
         for(int i=0;i<12;i++){float x=mx+(MAP[i][0]-545)/416f*mw-23,y=my+(MAP[i][1]-347)/312f*mh-13;rect(c,x,y,46,27,s.camera==i?0xff81973b:0xff202521);outline(c,x,y,46,27,WHITE);text(c,String.format(Locale.US,"%02d",i+1),x+8,y+20,17,WHITE);}
-        if(s.camera==10){button(c,s.quickWind?"RELEASE R2 / OFFICE":"HOLD R2 / WIND",35,558,290,62,s.wind);outline(c,35,643,245,23,WHITE);rect(c,38,646,(float)(239*s.musicBox),17,s.musicBox<.2?0xffffcc77:WHITE);}else if(s.musicBox<.2)text(c,"! MUSIC BOX",35,669,25,0xffffcc77);
-        text(c,s.quickWind?"R2 RELEASE: OFFICE  /  A OR L2 LIGHT":"X CLOSE  /  A OR L2 FLASHLIGHT",35,733,18,WHITE);staticLines(c,w,.045f);musicWarning(c,w,true);
+        if(s.camera==10){button(c,app.controllerInput?(s.quickWind?"RELEASE R2 / OFFICE":"HOLD R2 / WIND"):"HOLD TO WIND MUSIC BOX",35,558,290,62,s.wind);outline(c,35,643,245,23,WHITE);rect(c,38,646,(float)(239*s.musicBox),17,s.musicBox<.2?0xffffcc77:WHITE);}else if(s.musicBox<.2)text(c,"! MUSIC BOX",35,669,25,0xffffcc77);
+        text(c,app.controllerInput?(s.quickWind?"R2 RELEASE: OFFICE  /  A OR L2 LIGHT":"X CLOSE  /  A OR L2 FLASHLIGHT"):"HOVER BAR: OFFICE  /  CTRL: FLASHLIGHT",35,733,18,WHITE);staticLines(c,w,.045f);musicWarning(c,w,true);
     }
     void musicWarning(Canvas c,float w,boolean cameraView){int id=app.state.musicWarningImage(cameraView);if(id<0)return;if(cameraView)image(c,id,w-84,384,44,40,false);else image(c,id,w-105,627,70,62,false);}
     void staticLines(Canvas c,float w,float strength){long t=SystemClock.uptimeMillis()/65;for(int i=0;i<32;i++){int y=(int)((i*137+t*31)%768);int alpha=(int)(strength*(40+(i*37+t)%100));rect(c,0,y,w,1,Color.argb(alpha,220,220,210));}}
@@ -169,21 +169,61 @@ final class Fnaf2View extends View {
     void officeFlat(Canvas c,float w){officeFlat(c,w,app.state);}
     void officeFlat(Canvas c,float w,Fnaf2State s){float offset=(float)((w-1600)*(s.look+1)/2);c.save();c.translate(offset,0);Bitmap background=app.assets.image(s.officeImage());if(background!=null){lastOffice=background;observe(s.officeImage());}if(lastOffice!=null)draw(c,lastOffice,0,0,1600,768,false,.5f);if(s.halloween&&!s.monitor){dreamSprite(c,507,0,0);}if(s.pos[Fnaf2State.TF]==Fnaf2State.OFFICE)image(c,512,814,2,521,768,false);if(s.goldenOffice&&!s.monitor)image(c,520,310,242,505,505,false);if(s.pos[Fnaf2State.MANGLE]==Fnaf2State.CAUGHT&&!s.monitor&&!s.mangleArmed&&s.intruder<0)image(c,121,696,0,486,191,false);if(s.bbInside&&!s.monitor&&s.intruder<0)image(c,221,259,256,379,442,false);if(!s.monitor&&s.intruder<0){if(s.paperOffice)dreamSprite(c,326,1024,130);if(s.randomImage==9)dreamSprite(c,681,1022,645);if(s.shadowBonnie)dreamSprite(c,518,253,-3);}if(s.toyWalk.active)dreamSprite(c,187,s.toyWalk.x-266,s.toyWalk.y-513);image(c,new int[]{293,291,296,292}[(s.ticks/2)%4],568,332,851,435,false);int[] xs={712,812,740,876,1282},ys={554,558,584,592,600},ww={113,116,131,133,129},hh={149,173,144,154,156};int rewardMask=((app.challengeEarned&64)!=0?1:0)|((app.challengeEarned&4)!=0?2:0)|((app.challengeEarned&32)!=0?4:0)|((app.challengeEarned&16)!=0?8:0)|((app.challengeEarned&512)!=0?16:0);for(int i=0;i<5;i++)if(((app.equipped|rewardMask)&(1<<i))!=0)image(c,MainActivity.PLUSH_IMAGES[i],xs[i]-ww[i]/2f,ys[i]-hh[i]/2f,ww[i],hh[i],false);if((app.challengeEarned&2)!=0)dreamSprite(c,608,1038,476);if((app.challengeEarned&8)!=0)dreamSprite(c,610,991,517);if((app.challengeEarned&128)!=0)dreamSprite(c,555,1122,509);if((app.challengeEarned&256)!=0)dreamSprite(c,612,870,613);if(s.halloween&&!s.monitor)dreamSprite(c,503,730,531);c.restore();}
     @Override protected void onDetachedFromWindow(){perspective.release();super.onDetachedFromWindow();}
+    final InputProfile.Hover pointerHover=new InputProfile.Hover();
+    void clearPointer(){held=-1;pointerHover.reset();}
+    boolean pcGameplay(){return app.inputProfile.mode==InputProfile.PC&&app.state.playing&&app.state.live()&&app.intro==0&&app.ending==0&&!app.minigame.active&&!app.dream.active();}
+    boolean pcSingle(){return app.bottom==null&&app.inputProfile.mode==InputProfile.PC&&app.assets.ready&&app.state.playing&&app.intro==0&&app.ending==0&&!app.minigame.active&&!app.dream.active();}
+    boolean pcUpper(){return !app.state.monitor||!app.state.live();}
+    int pointerBar(float x,float y,float w){return y>=691&&y<765?(x>=w*.484&&x<w?1:!app.state.monitor&&x>=0&&x<w*.479?0:-1):-1;}
+    void pointerBars(Canvas c,float w){
+        pointerBar(c,w*496/1024,691,w*544/1024,0xffbcbcbc);
+        if(!app.state.monitor)pointerBar(c,-w*54/1024,693,w*544/1024,0xffbb4b4b);
+    }
+    void pointerBar(Canvas c,float x,float y,float width,int color){
+        rect(c,x,y,width,74,0x44000000);outline(c,x+3,y+3,width-6,68,color);
+        p.setColor(color);p.setStrokeWidth(4);
+        for(float f:new float[]{.32f,.68f}){float cx=x+width*f,cy=y+34;c.drawLine(cx-14,cy,cx,cy+13,p);c.drawLine(cx,cy+13,cx+14,cy,p);}
+    }
+    @Override public boolean onGenericMotionEvent(MotionEvent e){
+        if((e.getSource()&InputDevice.SOURCE_MOUSE)!=InputDevice.SOURCE_MOUSE)return super.onGenericMotionEvent(e);
+        if(e.getActionMasked()==MotionEvent.ACTION_HOVER_EXIT){pointerHover.reset();if(app.inputProfile.mode==InputProfile.PC)app.state.stick=0;return true;}
+        if(app.inputProfile.mouseMoved(e.getX(),e.getY()))app.useInput(InputProfile.PC);
+        if(!pcGameplay()){pointerHover.reset();return true;}
+        float h=pcSingle()||app.bottom!=null?getHeight():getHeight()/2f,scale=h/768,w=getWidth()/scale,x=e.getX()/scale,y=e.getY()/scale;
+        boolean up=pcSingle()?pcUpper():app.bottom==null?e.getY()<h:upper;
+        if(app.bottom==null&&!pcSingle()&&!up)y-=768;
+        int bar=up||app.state.monitor?pointerBar(x,y,w):-1;if(pointerHover.enter(bar)){if(bar==1)app.monitor();else app.mask();}
+        app.state.stick=up&&!app.state.monitor&&!app.state.paused?InputProfile.officeAxis(2,x/w,(float)app.state.lookSensitivity):0;
+        return true;
+    }
     @Override public boolean onTouchEvent(MotionEvent e){
-        float h=app.bottom==null?getHeight()/2f:getHeight();float offset=app.bottom==null&&e.getY()>=h?h:0;boolean up=app.bottom==null?offset==0:upper;float scale=h/768,w=getWidth()/scale,x=e.getX()/scale,y=(e.getY()-offset)/scale;
+        boolean mouse=(e.getSource()&InputDevice.SOURCE_MOUSE)==InputDevice.SOURCE_MOUSE;
+        if(e.getActionMasked()==MotionEvent.ACTION_DOWN)app.useInput(mouse?InputProfile.PC:InputProfile.TOUCH);
+        float h=pcSingle()||app.bottom!=null?getHeight():getHeight()/2f;float offset=app.bottom==null&&!pcSingle()&&e.getY()>=h?h:0;boolean up=pcSingle()?pcUpper():app.bottom==null?offset==0:upper;float scale=h/768,w=getWidth()/scale,x=e.getX()/scale,y=(e.getY()-offset)/scale;
         boolean down=e.getActionMasked()==MotionEvent.ACTION_DOWN,release=e.getActionMasked()==MotionEvent.ACTION_UP||e.getActionMasked()==MotionEvent.ACTION_CANCEL;
-        if(down)app.controllerInput=false;
+
         if(app.minigame.active){DeathMinigame m=app.minigame;if(release){m.left=m.right=m.up=m.down=false;return true;}if(down&&m.paused){app.back();return true;}if(!up&&!m.paused){float dx=x-w/2,dy=y-405;m.left=Math.abs(dy)<48&&dx< -55&&dx> -155;m.right=Math.abs(dy)<48&&dx>55&&dx<155;m.up=Math.abs(dx)<48&&dy< -55&&dy> -155;m.down=Math.abs(dx)<48&&dy>55&&dy<155;}return true;}
         if(app.dream.active()){app.dream.pan=release?0:x<w*.35?-1:x>w*.65?1:0;return true;}
-        Fnaf2State s=app.state;if(release){if(held==1)s.setWind(false);if(held==2)s.setFlashlight(false);if(held==3)s.setVent(true,false);if(held==4)s.setVent(false,false);held=-1;return true;}if(!down)return true;
+        Fnaf2State s=app.state;if(release){if(held==1)s.setWind(false);if(held==2)s.setFlashlight(false);if(held==3)s.setVent(true,false);if(held==4)s.setVent(false,false);held=-1;return true;}
+        if(mouse&&e.getActionMasked()==MotionEvent.ACTION_MOVE){
+            onGenericMotionEvent(e);
+            float wx=x-(float)((w-1600)*(s.look+1)/2),wy=app.perspectiveEnabled?384+(y-384)*(768-200*(1-(float)Math.sin(Math.PI*x/w)))/768:y;
+            if(held==1)s.setWind(!up&&x<300&&y>550&&y<690);
+            if(held==3)s.setVent(true,up&&wx>=105&&wx<197&&wy>=361&&wy<502);
+            if(held==4)s.setVent(false,up&&wx>=1395&&wx<1487&&wy>=359&&wy<500);
+            return true;
+        }
+        if(!down)return true;
         if(!app.assets.ready){app.importData();return true;}if(app.intro>0||app.ending>0)return true;
         if(!up&&useMonitorShell()){float[] point=monitorShell.source(x,y,w);if(point==null)return true;x=point[0];y=point[1];}
         if(!s.playing)return menus.touch(up,x,y,w);
         if(s.paused){s.paused=false;app.resetControls();app.audio.pause(false);return true;}
         if(!s.live())return true;
-        if(up){float worldX=x-(float)((w-1600)*(s.look+1)/2),worldY=app.perspectiveEnabled?384+(y-384)*(768-200*(1-(float)Math.sin(Math.PI*x/w)))/768:y;if(!s.monitor&&!s.mask&&Math.abs(worldX-153)<=8&&Math.abs(worldY-167)<=8){app.audio.play("honk","PartyFavorraspyPart_AC01__3",false,1);return true;}if(x<w*.18){s.setVent(true,true);held=3;}else if(x>w*.82){s.setVent(false,true);held=4;}else{s.setFlashlight(true);held=2;}return true;}
+        if(mouse&&app.audio.channels.containsKey("phone")&&x>=172&&x<293&&y>=42&&y<73){app.audio.stop("phone");return true;}
+        if(mouse&&(up||s.monitor)&&pointerBar(x,y,w)>=0){int bar=pointerBar(x,y,w);if(pointerHover.enter(bar)){if(bar==1)app.monitor();else app.mask();}return true;}
+        if(up){float worldX=x-(float)((w-1600)*(s.look+1)/2),worldY=app.perspectiveEnabled?384+(y-384)*(768-200*(1-(float)Math.sin(Math.PI*x/w)))/768:y;if(!s.monitor&&!s.mask&&Math.abs(worldX-153)<=8&&Math.abs(worldY-167)<=8){app.audio.play("honk","PartyFavorraspyPart_AC01__3",false,1);return true;}if(mouse?worldX>=105&&worldX<197&&worldY>=361&&worldY<502:x<w*.18){s.setVent(true,true);held=3;}else if(mouse?worldX>=1395&&worldX<1487&&worldY>=359&&worldY<500:x>w*.82){s.setVent(false,true);held=4;}else if(!mouse){s.setFlashlight(true);held=2;}return true;}
         if(!s.monitor){desk.touch(x,y,w);return true;}
         float mx=w-380,my=435;for(int i=0;i<12;i++){float bx=mx+(MAP[i][0]-545)/416f*340,by=my+(MAP[i][1]-347)/312f*255;if(Math.abs(x-bx)<30&&Math.abs(y-by)<22){app.camera(i);return true;}}
-        if(s.camera==10&&x<300&&y>550&&y<690){s.setWind(true);held=1;}else if(y>710)app.monitor();else{s.setFlashlight(true);held=2;}return true;
+        if(s.camera==10&&x<300&&y>550&&y<690){s.setWind(true);held=1;}else if(y>710)app.monitor();else if(!mouse){s.setFlashlight(true);held=2;}return true;
     }
 }
