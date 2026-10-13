@@ -14,6 +14,10 @@ Office above. Cameras below. Bring your own purchased Steam copy.
 
 </div>
 
+![FNaF 2 Redone main menu captured on AYN Thor](docs/images/main-menu.jpg)
+
+*AYN Thor main-menu capture from an earlier development build.*
+
 ## Welcome back to the night shift
 
 Keep the music box wound, watch the vents, and reach for the Freddy mask.
