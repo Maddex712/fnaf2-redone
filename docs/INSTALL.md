@@ -1,10 +1,14 @@
 # Download and install
 
-## Already have the standard FNaF 2 Thor app?
+## What you need
 
-Install the latest APK over it. Saves and imported data remain in app-private
-storage. You do not need to import assets again. Keep the app installed throughout
-the update. The developer app (`dev.thor.fnaf2.dev`) is a separate installation.
+- Android 8.0 or newer; AYN Thor is the target handheld.
+- Your purchased Windows Steam copy of Five Nights at Freddy’s 2.
+- A Windows PC to prepare the game-data ZIP once.
+- A way to transfer that ZIP to Android, such as USB.
+
+The APK contains the Android application. Your Steam copy supplies the original
+images and sounds through a local import. No Steam account sign-in is required.
 
 ## First installation
 
@@ -29,8 +33,7 @@ Leave sufficient free space for extracted files and the ZIP; extraction can take
 8. Open FNaF 2 Redone → Settings → **Import Steam data**, and select the ZIP.
 9. Wait for successful import, then select **New Game**.
 
-An existing `fnaf2-steam-288` data pack works too. The Android importer takes a
-ZIP, not the Steam executable. No Steam login is required inside the app.
+The Android importer takes the ZIP created by the helper, not the Steam executable.
 
 ## Troubleshooting
 
@@ -40,8 +43,14 @@ ZIP, not the Steam executable. No Steam login is required inside the app.
 - **Import file missing:** browse Downloads instead of Recent in the file picker.
 - **Helper won’t run:** verify .NET 10 SDK is installed with `dotnet --list-sdks`.
 - **Installation conflict:** retain saves; do not uninstall reflexively. Check that
-  you are updating the standard app with this publisher’s APK.
+  the APK came from this repository.
 - **Wrong screens:** check the app’s display/settings options.
 
 The public files contain no Steam artwork/audio pack or Windows fonts. Keep your
 personal data ZIP private. Uninstalling or clearing app storage removes progress.
+
+## Future updates
+
+Install a newer APK over the game without uninstalling it. Progress and imported
+data remain in place, so the Steam import is needed only for initial setup.
+Uninstalling or clearing app storage deletes that data.

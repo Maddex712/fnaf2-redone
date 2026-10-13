@@ -2,7 +2,7 @@
 
 ## 0.3.10 — first public FNaF 2 Redone package
 
-Includes the latest local FNaF 2 runtime, rather than the older 0.3.8 APK:
+Includes the FNaF 2 Android runtime:
 campaign and Custom Night, mask/cameras/music box, main-menu rare gallery and Arcade,
 controller minigames, office plushies, 1987 lower-screen interface, perspective,
 manual camera panning, and Halloween decoration option.

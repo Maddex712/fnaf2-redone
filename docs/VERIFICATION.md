@@ -12,5 +12,5 @@ SHA-256:
 
 ```text
 3362214ec8835b41fa6a84a727ff73012ddc559e64fc466539caeb87ab6c9d7e  FNaF2-Redone-0.3.10.apk
-7f25b61ff359d2f1d86c06de9cc83323a609d8dd3eaf11249c559d6c2d377947  FNaF2-Steam-Import-Helper.zip
+4b9ace7b0e07208571fcc67c89dde744442417108b542e4c5d30f45597fb1e6d  FNaF2-Steam-Import-Helper.zip
 ```

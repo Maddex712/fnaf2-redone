@@ -1,10 +1,19 @@
-Latest FNaF 2 Redone Android build: **0.3.10**.
+# FNaF 2 Redone 0.3.10 for Android
 
-- Install the APK to update the standard FNaF 2 Thor app; existing saves and imported data remain.
-- First installation requires your purchased Steam copy and the included import helper.
-- Includes campaign/Custom Night, main-menu Gallery and Arcade, controller support,
-  dual-screen terminal, perspective, plushies, and Halloween decoration setting.
-- Steam game assets and Windows fonts are not bundled.
+An unofficial FNaF 2 port for Android handhelds, designed for the AYN Thor’s two screens.
+Requires Android 8.0+ and your purchased Windows Steam copy of FNaF 2.
 
-Read the repository installation guide before first setup. This is an alpha-quality
-reconstructed runtime; exact parity and a fresh playthrough of this public APK are unverified.
+## Start here
+
+1. Download and install **FNaF2-Redone-0.3.10.apk** on Android.
+2. Download **FNaF2-Steam-Import-Helper.zip** on your Windows PC and extract it.
+3. Follow the [installation guide](https://github.com/Maddex712/fnaf2-redone/blob/main/docs/INSTALL.md)
+   to prepare and transfer your personal Steam game-data ZIP.
+4. Open the game → **Settings → Import Steam data**, select the ZIP, then choose **New Game**.
+
+Includes campaign and Custom Night, Gallery, Arcade, controller and touch controls,
+dual-screen menus, perspective, office plushies and Halloween decorations.
+Original Steam game assets are not included in the download.
+
+Seven regression suites passed. This is an alpha-quality reconstructed runtime;
+exact original-game parity and a fresh hardware playthrough remain incomplete.

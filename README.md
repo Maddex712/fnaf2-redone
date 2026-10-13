@@ -16,7 +16,7 @@ Office above. Cameras below. Bring your own purchased Steam copy.
 
 ![FNaF 2 Redone main menu captured on AYN Thor](docs/images/main-menu.jpg)
 
-*AYN Thor main-menu capture from an earlier development build.*
+*Main-menu screenshot captured on AYN Thor. Menu options may vary by version.*
 
 ## Welcome back to the night shift
 
@@ -48,11 +48,9 @@ Exact whole-game AI, timing, and RNG parity have not been established.
 4. Copy that ZIP to Downloads on your device. Open **Settings → Import Steam data**, and choose it.
 5. Wait for import to finish, then choose **New Game**.
 
-**Updating an existing installation:** install the new APK over the existing app.
-The package and signing identity match the original standard FNaF 2 Thor app;
-existing imported data and saves stay in app storage. No repeated import is needed.
-The separate DEV app is not converted into this installation. Do not uninstall or
-clear storage to update: those actions delete local saves and imported data.
+For future updates, install the newer APK without uninstalling the game.
+Progress and imported game data stay in place. **Uninstalling or clearing app
+storage deletes local saves and imported data.**
 
 ## Controls
 

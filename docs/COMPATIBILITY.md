@@ -1,6 +1,6 @@
 # Compatibility and testing
 
-- Android API 26 minimum; API 35 target. Standard package: `dev.thor.fnaf2`.
+- Android API 26 minimum; API 35 target. 
 - Designed and previously exercised on AYN Thor with office and cameras on separate displays.
 - This release build runs seven JVM regression suites covering state, gameplay rules,
   event ordering, RNG, menu effects, death minigames and encounter catalog behavior.
