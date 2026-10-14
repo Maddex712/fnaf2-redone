@@ -19,6 +19,10 @@ Check 'Input profile tests'
 Check 'Test compilation'
 & (Join-Path $jdk 'java.exe') -cp (Join-Path $out 'tests') dev.thor.fnaf2.Fnaf2StateTest
 Check 'State tests'
+& javac --release 8 -cp (Join-Path $out 'tests') -d (Join-Path $out 'tests') (Join-Path $PSScriptRoot 'tests/QuickWindBehaviorTest.java')
+Check 'Winding regression compilation'
+& java -cp (Join-Path $out 'tests') dev.thor.fnaf2.QuickWindBehaviorTest
+Check 'Winding and Chica regression tests'
 & (Join-Path $jdk 'java.exe') -cp (Join-Path $out 'tests') dev.thor.fnaf2.GameplayParityTest
 Check 'Gameplay parity regression tests'
 & (Join-Path $jdk 'javac.exe') --release 8 -cp (Join-Path $out 'tests') -d (Join-Path $out 'tests') (Join-Path $PSScriptRoot 'tests/EventOrderParityTest.java')
@@ -41,7 +45,7 @@ Check 'Encounter test compilation'
 Check 'Encounter and mask tests'
 
 $manifest=Join-Path $source 'AndroidManifest.xml'
-& $aapt link -I $androidJar --manifest $manifest -A (Join-Path $source 'assets') --min-sdk-version 26 --target-sdk-version 35 --version-code 24 --version-name '0.3.12-alpha' -o (Join-Path $out 'unsigned.apk')
+& $aapt link -I $androidJar --manifest $manifest -A (Join-Path $source 'assets') --min-sdk-version 26 --target-sdk-version 35 --version-code 25 --version-name '0.3.13-alpha' -o (Join-Path $out 'unsigned.apk')
 Check 'Resource linking'
 $files=Get-ChildItem (Join-Path $source 'java') -Recurse -Filter '*.java' | ForEach-Object FullName
 & (Join-Path $jdk 'javac.exe') --release 8 -cp $androidJar -d (Join-Path $out 'classes') @files
@@ -57,7 +61,7 @@ try { [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($apk,(Join-Path $o
 Check 'APK alignment'
 $key=(Resolve-Path -LiteralPath $SigningKey).Path
 if (!$env:FNAF_SIGNING_PASSWORD) { throw 'Set FNAF_SIGNING_PASSWORD for your private key.' }
-$final=Join-Path $out 'FNaF2-Redone-0.3.12.apk'
+$final=Join-Path $out 'FNaF2-Redone-0.3.13.apk'
 & (Join-Path $buildTools 'apksigner.bat') sign --ks $key --ks-key-alias $KeyAlias --ks-pass env:FNAF_SIGNING_PASSWORD --key-pass env:FNAF_SIGNING_PASSWORD --out $final (Join-Path $out 'aligned.apk')
 Check 'APK signing'
 & (Join-Path $buildTools 'apksigner.bat') verify --verbose $final

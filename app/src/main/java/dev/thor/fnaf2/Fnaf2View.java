@@ -160,8 +160,8 @@ final class Fnaf2View extends View {
         if(s.signalTicks>0)centered(c,"SIGNAL INTERRUPTED",w,330,25,WHITE,false);
         float mx=w-380,my=435,mw=340,mh=255;image(c,2,mx,my,mw,mh,false);
         for(int i=0;i<12;i++){float x=mx+(MAP[i][0]-545)/416f*mw-23,y=my+(MAP[i][1]-347)/312f*mh-13;rect(c,x,y,46,27,s.camera==i?0xff81973b:0xff202521);outline(c,x,y,46,27,WHITE);text(c,String.format(Locale.US,"%02d",i+1),x+8,y+20,17,WHITE);}
-        if(s.camera==10){button(c,app.controllerInput?(s.quickWind?"RELEASE R2 / OFFICE":"HOLD R2 / WIND"):"HOLD TO WIND MUSIC BOX",35,558,290,62,s.wind);outline(c,35,643,245,23,WHITE);rect(c,38,646,(float)(239*s.musicBox),17,s.musicBox<.2?0xffffcc77:WHITE);}else if(s.musicBox<.2)text(c,"! MUSIC BOX",35,669,25,0xffffcc77);
-        text(c,app.controllerInput?(s.quickWind?"R2 RELEASE: OFFICE  /  A OR L2 LIGHT":"X CLOSE  /  A OR L2 FLASHLIGHT"):"HOVER BAR: OFFICE  /  CTRL: FLASHLIGHT",35,733,18,WHITE);staticLines(c,w,.045f);musicWarning(c,w,true);
+        if(s.camera==10){button(c,app.controllerInput?(s.quickWind?(s.quickWindStayOnCamera?"RELEASE R2 / CAMERAS":"RELEASE R2 / OFFICE"):"HOLD R2 / WIND"):"HOLD TO WIND MUSIC BOX",35,558,290,62,s.wind);outline(c,35,643,245,23,WHITE);rect(c,38,646,(float)(239*s.musicBox),17,s.musicBox<.2?0xffffcc77:WHITE);}else if(s.musicBox<.2)text(c,"! MUSIC BOX",35,669,25,0xffffcc77);
+        text(c,app.controllerInput?(s.quickWind?(s.quickWindStayOnCamera?"R2 RELEASE: STAY ON CAM 11  /  A OR L2 LIGHT":"R2 RELEASE: OFFICE  /  A OR L2 LIGHT"):"X CLOSE  /  A OR L2 FLASHLIGHT"):"HOVER BAR: OFFICE  /  CTRL: FLASHLIGHT",35,733,18,WHITE);staticLines(c,w,.045f);musicWarning(c,w,true);
     }
     void musicWarning(Canvas c,float w,boolean cameraView){int id=app.state.musicWarningImage(cameraView);if(id<0)return;if(cameraView)image(c,id,w-84,384,44,40,false);else image(c,id,w-105,627,70,62,false);}
     void staticLines(Canvas c,float w,float strength){long t=SystemClock.uptimeMillis()/65;for(int i=0;i<32;i++){int y=(int)((i*137+t*31)%768);int alpha=(int)(strength*(40+(i*37+t)%100));rect(c,0,y,w,1,Color.argb(alpha,220,220,210));}}

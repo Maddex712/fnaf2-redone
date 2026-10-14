@@ -37,6 +37,7 @@ final class Fnaf2State {
     final boolean[] footstepQueued=new boolean[9],ventQueued=new boolean[9];
     final int[] movementNoise=new int[9];
     boolean playing,monitor,mask,flashlight,leftLight,rightLight,wind,paused,won,dead,bbInside,quickWind;
+    boolean quickWindStayOnCamera;
     int camera=8,night=1,ticks,phase,attacker=-1,puppetStage,puppetPosition=11,puppetAI,puppetStun,maskFrames,challenge=-1,goldenAI,goldenHallTicks,signalTicks;
     int attackFrames,attackAnimationUnits;boolean attackFresh;
     boolean pictureOffice,lowerRollPending,attackDropPending;
@@ -166,7 +167,7 @@ final class Fnaf2State {
         }
     }
     void setQuickWind(boolean on){
-        if(!on){boolean active=quickWind;quickWind=false;wind=false;if(active){if(cameraRaiseTicks>0)closeAfterRaise=true;else forceMonitorDown();clearInputs();}return;}
+        if(!on){boolean active=quickWind;quickWind=false;wind=false;if(active){if(!quickWindStayOnCamera){if(cameraRaiseTicks>0)closeAfterRaise=true;else forceMonitorDown();}clearInputs();}return;}
         if(!live())return;
         if(mask&&maskMotion==0)toggleMask();
         quickWind=true;advanceQuickWind();

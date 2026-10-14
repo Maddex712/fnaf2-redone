@@ -12,7 +12,7 @@ images and sounds through a local import. No Steam account sign-in is required.
 
 ## First installation
 
-1. Download **FNaF2-Redone-0.3.12.apk** from Releases and install it on Android.
+1. Download **FNaF2-Redone-0.3.13.apk** from Releases and install it on Android.
 2. In Steam on your PC, open FNaF 2 → Manage → Browse local files. Locate `FiveNightsatFreddys2.exe`.
 3. Copy that EXE to Downloads on your Android device using your own file transfer.
 4. Open FNaF 2 Redone → **Settings → Scan Steam file** (or select setup on the initial screen).

@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.3.13 — configurable music-box quick access
+
+- Added a saved R2-release choice: return to office or stay on cameras. Default controls are retained.
+- Added matching camera/control prompts and ten-option controller/touch settings navigation.
+- Verified interrupted/early-release winding and masked/unmasked left-vent Chica paths; no speculative AI change.
+- Passed 18 focused checks, 13 original replay scenarios and nine isolated Android runtime checks on Thor.
+
+
 ## 0.3.12 — Steam EXE setup and first Windows build
 
 - Android now selects and scans the Steam EXE directly, with ZIP support retained. Fixed the ZIP-only file-picker restriction reported by a tester.
